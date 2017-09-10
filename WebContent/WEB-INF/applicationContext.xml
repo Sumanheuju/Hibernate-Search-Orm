@@ -1,0 +1,60 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:security="http://www.springframework.org/schema/security"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:webflow-config="http://www.springframework.org/schema/webflow-config"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.0.xsd
+		http://www.springframework.org/schema/tx
+	   http://www.springframework.org/schema/tx/spring-tx.xsd
+       http://www.springframework.org/schema/security
+	   http://www.springframework.org/schema/security/spring-security.xsd
+	   http://www.springframework.org/schema/webflow-config
+	   http://www.springframework.org/schema/webflow-config/spring-webflow-config-2.4.xsd">
+
+	<!-- MySQL Database Connection -->
+	<bean id="dataSource"
+		class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+		<property name="driverClassName" value="com.mysql.jdbc.Driver" />
+		<property name="url" value="jdbc:mysql://localhost:3306/products" />
+		<property name="username" value="root" />
+		<property name="password" value="" />
+	</bean>
+
+	<!-- Hibernate Configuration -->
+	<bean id="sessionFactory"
+		class="org.springframework.orm.hibernate4.LocalSessionFactoryBean">
+		<property name="dataSource" ref="dataSource"></property>
+		<property name="hibernateProperties">
+			<props>
+				<!-- Dialect is basically a specific sql syntax used for specific database, 
+					for now MySQL dialect is used my MySQL database -->
+				<prop key="hibernate.dialect">org.hibernate.dialect.MySQLDialect</prop>
+				<!-- - Basically validates or export the schema ddl to the database when 
+					the session factory is created - You can put four different values here i.e 
+					validate (validates the schema), update (updates the schema) ,create(creates 
+					the scheme, also destroys previous schema), create drop(It creates a schema, 
+					by the end of the session it will drop the created schema). -->
+				<prop key="hibernate.hbm2ddl.auto">update</prop>
+				<prop key="hibernate.show_sql">false</prop>
+				<!-- Formats the outputted sql -->
+				<prop key="hibernate.format_sql">true</prop>
+				<prop key="hibernate.search.default.directory_provider">
+					org.hibernate.search.store.impl.FSDirectoryProvider
+				</prop>
+				<prop key="hibernate.search.default.indexBase">
+					 /Users/sumanheuju/Documents/workspace/ElasticSearch/indexes
+				</prop>
+			</props>
+		</property>
+		<property name="packagesToScan" value="com.vortex.elasticsearch.model"></property>
+	</bean>
+
+	<!-- Defines transaction management in Hibernate -->
+	<bean id="transactionManager"
+		class="org.springframework.orm.hibernate4.HibernateTransactionManager">
+		<property name="sessionFactory" ref="sessionFactory"></property>
+	</bean>
+    <tx:annotation-driven transaction-manager="transactionManager"/>
+
+</beans>
